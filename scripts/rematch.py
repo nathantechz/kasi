@@ -57,6 +57,7 @@ def main() -> None:
     print(f"  on a ship            {f['shipboard']:5d}")
     print(f"  housekeeping         {f['housekeeping']:5d}")
     print(f"  experience match     {f['experience']:5d}")
+    print(f"  not turned down      {f['wanted']:5d}")
     print(f"  active               {f['active']:5d}")
     print(f"  fresh                {f['fresh']:5d}")
     print(f"\nCurated DB rebuilt: {out['kept']} jobs → {out['db']}")

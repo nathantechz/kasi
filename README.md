@@ -1,23 +1,26 @@
 # Kasi — cruise ship housekeeping job pipeline
 
+**Live dashboard: https://nathantechz.github.io/kasi/**
+
 A reproducible pipeline that scrapes cruise-line career boards and maintains a
-database of **only the jobs Kasinathan Arumugam should actually apply to**, plus
-an interactive dashboard with a direct apply link for each one.
+database of **only the jobs Kasi should actually apply to**, plus an interactive
+dashboard with a direct apply link for each one.
 
 Built on the same conventions as the sibling `Clinical_trials_R&R` project:
 capture broadly into an immutable evidence trail, publish narrowly.
 
-## The five gates
+## The six gates
 
-A posting reaches the database only if it passes **all five**:
+A posting reaches the database only if it passes **all six**:
 
 | # | Gate | Meaning |
 |---|------|---------|
 | 1 | `shipboard` | The job is worked **on a vessel** — not a shore office, port, or private island |
 | 2 | `housekeeping` | It is a housekeeping / cabin / laundry / public-area role |
 | 3 | `experience` | The experience the posting **expects** is within reach of what Kasi **has** |
-| 4 | `active` | The posting is still open on the board |
-| 5 | `fresh` | Posted **within 30 days** of the pipeline run |
+| 4 | `wanted` | It is not a role Kasi has marked *Not interested* |
+| 5 | `active` | The posting is still open on the board |
+| 6 | `fresh` | Posted **within 30 days** of the pipeline run |
 
 Gate 3 is the interesting one. Kasi's profile lives in
 `profile/kasi_profile.json` — B.Sc. Marine Catering & Hotel Management (2024),
@@ -48,6 +51,60 @@ Or step by step:
 .venv/bin/python scripts/query.py --strong    # terminal view of the best matches
 ```
 
+## "Not interested" — how Kasi's choices come back
+
+GitHub Pages is static, so the site cannot write to this repo by itself. The
+loop is deliberate and explicit:
+
+1. Kasi taps **Not interested** on a job. It disappears from his list
+   immediately and the choice is saved in his browser.
+2. A **"Roles Kasi turned down"** box appears with a ready-made JSON block.
+3. Paste that block into `profile/not_interested.json` under `"exclusions"`
+   and commit it.
+4. From then on the **pipeline** drops those roles at gate 4, on every machine,
+   on every future run.
+
+Exclusions match on **company + normalised title**, not on job id — boards
+repost the same role under a new requisition number every few weeks, and keying
+on the id would let a rejected role reappear forever.
+
+## English requirements
+
+Every job carries an `english_tier`, so Kasi can see whether a role will cost
+him an exam fee and a wait:
+
+| Tier | Meaning |
+|------|---------|
+| `certificate` | Names a specific test — Marlins, IELTS, TOEFL, CEFR level |
+| `fluency` | Wants fluent/proficient English, **no certificate named** |
+| `mentioned` | English appears only as a soft communication ask |
+| `none` | No English requirement found |
+
+Filter by this on the dashboard. **As of the last run, all 12 matched jobs are
+`fluency` and not one requires a certificate** — Kasi does not need to go and
+sit an IELTS or Marlins test to apply for any of them.
+
+## What each application asks for
+
+Each job shows a **"What you'll need to fill in"** checklist, captured by
+opening the employer's real application form in a browser and enumerating its
+fields (the forms are JavaScript-rendered and cannot be read over plain HTTP).
+Verified **per employer**, not per job — every posting on one board submits
+through an identical form. See `scripts/application_forms.json`; each entry
+carries a `verified_on` date and the job it was checked against, and the
+`_default` fallback is explicitly marked unverified.
+
+The **Apply** button deep-links straight to the form rather than the job advert,
+using the `jobSeqNo` the board already exposes. A separate *Read full posting*
+link goes to the advert.
+
+Two things this surfaced that matter:
+
+- **Viking's CV limit is 1MB; MSC's is 3MB.** A CV sized for MSC will be
+  rejected by Viking.
+- **Viking asks whether you have tattoos visible in uniform.** It is a screening
+  question, not an automatic rejection.
+
 ## The dashboard
 
 `dashboard/index.html` is a single self-contained file — no server, works
@@ -58,7 +115,9 @@ offline, opens on a phone from OneDrive. For every job it shows:
 - what the posting asks for vs. what Kasi has (`asks 2+ yrs · Kasi has 2.33`)
 - how old the posting is, and whether it is an **evergreen req** the board re-dates daily
 - search, filters by verdict / role type / employer, and three sort orders
-- a **Mark as applied** tick, saved in the browser so progress survives a refresh
+- a **Mark as applied** tick and a **Not interested** button, saved in the browser
+- an **English requirement** filter, and a checklist of what the form will ask for
+- a panel of documents to have ready before starting any application
 
 The header shows the funnel — how many postings were on record, and how many
 survived each gate — so the number at the top is always traceable.

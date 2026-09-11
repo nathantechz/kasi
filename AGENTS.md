@@ -96,3 +96,39 @@ This pipeline is for **shipboard housekeeping**. Do not widen it to F&B, deck,
 galley, or shoreside hotel work without being asked — the value here is that
 everything in the dashboard is worth Kasi's time. `_HK_FALSE` in `common.py`
 exists to keep galley/dining "steward" roles out; don't remove it.
+
+## The public GitHub Pages site
+`https://nathantechz.github.io/kasi/` is served from `main` → `/docs`.
+`build_dashboard.py` writes the same HTML to BOTH `dashboard/` (local use) and
+`docs/` (what Pages serves). A refresh is therefore: run the pipeline, then
+commit `docs/index.html`.
+
+**The repo is PUBLIC.** Before committing anything, check it carries no personal
+data. Specifically:
+- `*.pdf` is git-ignored — the CV holds his passport number, CDC number, phone,
+  email and full date of birth and must never be committed.
+- `profile/kasi_profile.json` is deliberately redacted (no DOB, no document
+  numbers, first name only). No code path reads those fields; the pipeline only
+  uses `match_rules` and `freshness`.
+- Match reasons and `application_forms.json` must **not name his current
+  employer** — he is job hunting while still employed, and the dashboard is
+  public. Say "his serviced-apartment room-attendant experience" instead.
+
+Run this before any push that touches generated output:
+```bash
+for t in Somerset Kasinathan 7695922163 W4562560 2004; do
+  grep -c "$t" docs/index.html; done      # every count must be 0
+```
+
+## The "not interested" loop
+`profile/not_interested.json` is **hand-written** (via the dashboard's export
+box) and is gate 4. Match on `company` + `title_norm`, never on `job_id` —
+boards repost the same role under a new requisition id, and an id-keyed
+exclusion would silently stop working. `title_contains` is the looser form.
+
+## Application forms
+`scripts/application_forms.json` is captured **manually in a browser**, because
+these forms are JavaScript-rendered. It is verified per employer, not per job.
+Never invent fields: if a form has not been checked, leave the employer out and
+let `_default` apply — it is labelled unverified on the dashboard on purpose.
+Bump `verified_on` whenever you re-check.
