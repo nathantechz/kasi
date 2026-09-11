@@ -1,0 +1,167 @@
+{
+  "_comment": [
+    "Employer boards to scrape. Every entry here was probed and verified to respond.",
+    "Add more freely — an unreachable board fails gracefully and yields 0 rows.",
+    "'hint' asserts what the board itself says about ship vs shore:",
+    "   'ship'  = this board/site only ever posts shipboard (crew) roles",
+    "   'shore' = this board/site only ever posts shoreside (office) roles",
+    "   null    = mixed; common.classify_shipboard() decides per posting."
+  ],
+  "workday": [
+    {
+      "name": "Norwegian Cruise Line Holdings",
+      "brand": "NCL / Oceania / Regent",
+      "host": "nclh.wd108.myworkdayjobs.com",
+      "tenant": "nclh",
+      "site": "NCLH_Careers",
+      "hint": null,
+      "ship_location_pattern": "norwegian cruise line|regent seven seas|oceania cruises|pride of america|shipboard|vessel"
+    },
+    {
+      "name": "Norwegian Cruise Line — Pride of America",
+      "brand": "Pride of America",
+      "host": "nclh.wd108.myworkdayjobs.com",
+      "tenant": "nclh",
+      "site": "POA_Careers",
+      "hint": "ship"
+    },
+    {
+      "name": "Norwegian Cruise Line — Shoreside",
+      "brand": "NCL Shoreside",
+      "host": "nclh.wd108.myworkdayjobs.com",
+      "tenant": "nclh",
+      "site": "NCL_Shoreside_Careers",
+      "hint": "shore"
+    },
+    {
+      "name": "NCLH Belize Island Holdings",
+      "brand": "Harvest Caye",
+      "host": "nclh.wd108.myworkdayjobs.com",
+      "tenant": "nclh",
+      "site": "BIHL_Careers",
+      "hint": "shore"
+    },
+    {
+      "name": "NCLH Global Shared Services",
+      "brand": "NCLH GSC",
+      "host": "nclh.wd108.myworkdayjobs.com",
+      "tenant": "nclh",
+      "site": "GSC_Careers",
+      "hint": "shore"
+    },
+    {
+      "name": "Virgin Voyages",
+      "brand": "Virgin Voyages",
+      "host": "red.wd1.myworkdayjobs.com",
+      "tenant": "red",
+      "site": "VV",
+      "hint": null
+    }
+  ],
+  "phenom": [
+    {
+      "name": "MSC Cruises",
+      "brand": "MSC",
+      "host": "careers.msccruises.com",
+      "search_path": "/gb/en/search-results",
+      "job_path": "/gb/en/job",
+      "apply_url_template": "https://careers.msccruises.com/gb/en/hvhapply?jobSeqNo={jobSeqNo}"
+    },
+    {
+      "name": "Viking",
+      "brand": "Viking Ocean / River / Expedition",
+      "host": "www.vikingcareers.com",
+      "search_path": "/world/en/search-results",
+      "job_path": "/world/en/job",
+      "apply_url_template": "https://www.vikingcareers.com/world/en/apply?jobSeqNo={jobSeqNo}&step=1"
+    }
+  ],
+  "radancy": [
+    {
+      "name": "Carnival Corporation",
+      "brand": "Carnival",
+      "host": "jobs.carnival.com",
+      "_note": "Works, but carries Carnival's Miami corporate reqs only (~91). Shipboard hiring runs through approved manning partners."
+    },
+    {
+      "name": "Disney",
+      "brand": "Disney Cruise Line",
+      "host": "www.disneycareers.com",
+      "_note": "Correct host is www.disneycareers.com — jobs.disneycareers.com 301s here and its own /search-jobs/results path returns no JSON. ~51 pages; Keyword param is ignored server-side."
+    }
+  ],
+  "greenhouse": [],
+  "smartrecruiters": [
+    {
+      "name": "MSC Cruises",
+      "token": "MSCCruises"
+    },
+    {
+      "name": "Hurtigruten",
+      "token": "Hurtigruten"
+    }
+  ],
+  "_housekeeping_keywords": [
+    "housekeeping",
+    "stateroom",
+    "cabin steward",
+    "room steward",
+    "steward",
+    "laundry",
+    "linen",
+    "cleaner",
+    "utility",
+    "public area",
+    "accommodation"
+  ],
+  "_unsupported": [
+    {
+      "name": "Disney Cruise Line",
+      "host": "jobs.disneycareers.com",
+      "platform": "radancy",
+      "_note": "RESOLVED — real host is www.disneycareers.com, now under 'radancy'."
+    },
+    {
+      "name": "Royal Caribbean Group",
+      "host": "www.rclcareers.com",
+      "platform": "unknown",
+      "_note": "Hard-blocked by Cloudflare (HTTP 403) on every hostname tried: www./jobs./careers.rclcareers.com and royalcaribbeangroup.com. RCL is the single biggest employer of cabin stewards, so this is the most valuable gap in the pipeline — it needs a browser-based fetch, not requests."
+    },
+    {
+      "name": "Costa / AIDA",
+      "platform": "unknown",
+      "_note": "Carnival Europe brands — career sites 403/404 to non-EU IPs."
+    },
+    {
+      "name": "Anglo-Eastern",
+      "host": "anglo-eastern.workable.com",
+      "platform": "workable",
+      "_note": "Workable account slug not resolved (404). Ship management — mostly officers/ratings, little housekeeping."
+    }
+  ],
+  "oraclecloud": [
+    {
+      "name": "Holland America Group",
+      "brand": "Princess / Holland America / Seabourn / Cunard / P&O",
+      "host": "eicl.fa.em5.oraclecloud.com",
+      "site": "HAGroup",
+      "hint": null,
+      "_note": "One Oracle tenant shared by the Carnival 'HA Group' brands. Currently shoreside + private-island reqs (Half Moon Cay, Grand Turk) which gate 1 rejects — kept so shipboard reqs are caught if they appear."
+    },
+    {
+      "name": "Holland America Group (CX_1)",
+      "brand": "HA Group corporate",
+      "host": "eicl.fa.em5.oraclecloud.com",
+      "site": "CX_1",
+      "hint": "shore"
+    }
+  ],
+  "lever": [
+    {
+      "name": "Lindblad Expeditions",
+      "brand": "National Geographic / Lindblad",
+      "token": "lindblad-expeditions",
+      "hint": null
+    }
+  ]
+}

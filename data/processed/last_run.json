@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-11",
+  "run_counts": {
+    "workday": 113,
+    "phenom": 16,
+    "radancy": 0,
+    "oraclecloud": 2,
+    "lever": 1,
+    "smartrecruiters": 0
+  },
+  "master": 137,
+  "new": 0,
+  "newly_closed": 0,
+  "kept": 12,
+  "funnel": {
+    "scraped": 137,
+    "shipboard": 38,
+    "housekeeping": 17,
+    "experience": 13,
+    "wanted": 13,
+    "active": 13,
+    "fresh": 12
+  },
+  "kasi_years": 2.33
+}

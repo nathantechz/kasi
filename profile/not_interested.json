@@ -1,0 +1,26 @@
+{
+  "_comment": [
+    "Roles Kasi has marked 'Not interested' on the dashboard.",
+    "",
+    "HOW THIS WORKS: the GitHub Pages site is static, so it cannot write back here",
+    "by itself. Kasi ticks 'Not interested' on a job; the choice is saved in his",
+    "browser and the job disappears from his list immediately. The dashboard's",
+    "'Export exclusions' button then gives a JSON block to paste into this file",
+    "and commit — from then on the PIPELINE excludes those roles at source, on",
+    "every machine, forever.",
+    "",
+    "MATCHING: entries match on company + normalised title, NOT on job_id, so an",
+    "employer reposting the same role under a new requisition id stays excluded.",
+    "Set \"title_norm\" to the lowercased title, or use \"title_contains\" for a",
+    "looser match. Leave \"company\" empty to exclude that role at every employer."
+  ],
+
+  "exclusions": [],
+
+  "_example": [
+    {"company": "MSC Cruises", "title_norm": "butler",
+     "reason": "wants housekeeping, not guest-facing butler service", "added": "2026-09-11"},
+    {"company": "", "title_contains": "laundry",
+     "reason": "example only — would drop every laundry role everywhere", "added": "2026-09-11"}
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "_comment": "Kasi's candidate profile. This file DRIVES the experience-match filter. Edit it as his experience grows and re-run scripts/rematch.py (no re-scrape needed).",
+  "name": "Kasi",
+  "base_location": "Chennai, India",
+  "seafarer_documents": {
+    "passport_valid": true,
+    "cdc_valid": true,
+    "ready_to_join_ship": true,
+    "_note": "Numbers and expiry dates intentionally omitted — see _privacy_note."
+  },
+  "education": [
+    {
+      "qualification": "B.Sc. Marine Catering & Hotel Management",
+      "institution": "Subbalakshmi Lakshmipathy College, Madurai",
+      "completed": "2024-06"
+    }
+  ],
+  "experience": [
+    {
+      "role": "Room Attendant",
+      "employer": "Somerset Greenways, Chennai",
+      "setting": "premium serviced apartment",
+      "from": "2024-05",
+      "to": null,
+      "department": "housekeeping",
+      "supervisory": false
+    },
+    {
+      "role": "On-Job Training (F&B Production)",
+      "employer": "Four Points by Sheraton, New Delhi",
+      "setting": "5-star hotel",
+      "from": "2023-11",
+      "to": "2024-03",
+      "department": "food_and_beverage",
+      "supervisory": false
+    }
+  ],
+  "skills": [
+    "room upkeep",
+    "linen management",
+    "chemical handling",
+    "waste disposal",
+    "sanitation",
+    "guest management",
+    "amenity replenishment",
+    "inventory",
+    "SOP adherence",
+    "hygiene and safety protocols",
+    "turndown service"
+  ],
+  "languages": {
+    "english": "fluent",
+    "tamil": "native",
+    "hindi": "basic"
+  },
+  "match_rules": {
+    "_comment": "A posting is KEPT only if the experience it expects is within reach of what Kasi actually has.",
+    "housekeeping_months_as_of": "2024-05",
+    "counts_supervisory_months": 0,
+    "max_required_years": 3.0,
+    "_max_required_years_note": "Reject a posting whose stated minimum experience exceeds this.",
+    "grace_years": 0.5,
+    "_grace_years_note": "Kasi may still be a fit for a posting asking up to this much more than he has.",
+    "allowed_seniority": [
+      "entry",
+      "attendant",
+      "assistant"
+    ],
+    "rejected_seniority": [
+      "supervisor",
+      "manager",
+      "chief",
+      "director",
+      "executive",
+      "head"
+    ],
+    "target_titles": [
+      "stateroom steward",
+      "cabin steward",
+      "room steward",
+      "cabin attendant",
+      "stateroom attendant",
+      "housekeeping attendant",
+      "public area attendant",
+      "utility cleaner",
+      "crew cleaner",
+      "laundry attendant",
+      "linen keeper",
+      "accommodation steward",
+      "housekeeper",
+      "night cleaner",
+      "cabin service"
+    ],
+    "stretch_titles": [
+      "assistant housekeeper",
+      "assistant chief housekeeper",
+      "1st housekeeper",
+      "second housekeeper",
+      "housekeeping supervisor"
+    ],
+    "keep_verdicts": [
+      "strong_match",
+      "stretch"
+    ],
+    "_keep_verdicts_note": "Only these verdicts are written to the curated database."
+  },
+  "freshness": {
+    "max_age_days": 30,
+    "_note": "Postings older than this (relative to the pipeline run date) are excluded."
+  },
+  "_privacy_note": "This repo is public. Personal identifiers (full date of birth, passport/CDC numbers, phone, email) are deliberately NOT stored here. They live only in the CV, which is git-ignored. No code path reads them — the pipeline only uses match_rules and freshness."
+}

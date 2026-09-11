@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# ---------------------------------------------------------------------------
+# PERSONAL DATA — never commit. This repository is public.
+# The CV carries Kasi's passport number, CDC number, phone, email and full date
+# of birth. It must stay on local disk only.
+# ---------------------------------------------------------------------------
+*.pdf
+profile/*.pdf
+
+# Scrape artefacts: regenerated on every run, and large.
+data/raw/
+data/logs/
+data/kasi_jobs.db
+data/processed/jobs_master.jsonl
+data/processed/jobs_master.csv

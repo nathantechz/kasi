@@ -1,0 +1,142 @@
+{
+  "_comment": [
+    "What each employer's online application form actually asks for.",
+    "",
+    "CAPTURED LIVE on 2026-09-11 by opening the real apply form in a browser and",
+    "enumerating its fields (the forms are JavaScript-rendered, so they cannot be",
+    "read with plain HTTP). Verified per EMPLOYER, not per job: every posting on",
+    "the same board submits through one identical form — only the job title at the",
+    "top changes. The 'verified_on' date says when that was last checked.",
+    "",
+    "Re-check with: scripts/check_application_forms.md (manual browser steps).",
+    "If a form changes, update 'fields' and bump 'verified_on'."
+  ],
+  "forms": {
+    "MSC Cruises": {
+      "platform": "Phenom high-volume apply",
+      "apply_url_template": "https://careers.msccruises.com/gb/en/hvhapply?jobSeqNo={jobSeqNo}",
+      "verified_on": "2026-09-11",
+      "verified_against": "Crew Cleaner (1029)",
+      "steps": [
+        "Upload CV",
+        "Personal Information",
+        "Languages",
+        "Additional Questions"
+      ],
+      "cv_upload": {
+        "required": true,
+        "formats": [
+          "DOC",
+          "DOCX",
+          "PDF",
+          "TXT"
+        ],
+        "max_size": "3MB",
+        "note": "CV must be in the language of the job posting (English)."
+      },
+      "required_fields": [
+        "Email",
+        "First Name",
+        "Last Name",
+        "Country of Residence",
+        "Nationality",
+        "Country Code",
+        "Phone Number (no spaces)",
+        "Date of Birth",
+        "Gender",
+        "How did you hear about us?",
+        "Specific source",
+        "Language + Proficiency level",
+        "Consent to data processing"
+      ],
+      "optional_fields": [
+        "Second Nationality",
+        "Native-language tick",
+        "Other attachments"
+      ],
+      "watch_out": [
+        "Asks you to self-declare each language and your proficiency level — Kasi: English (fluent), Tamil (native), Hindi (basic).",
+        "MSC advises applying for only one or two best-fitting roles; more applications do not improve your chances."
+      ]
+    },
+    "Viking": {
+      "platform": "Phenom apply",
+      "apply_url_template": "https://www.vikingcareers.com/world/en/apply?jobSeqNo={jobSeqNo}&step=1",
+      "verified_on": "2026-09-11",
+      "verified_against": "OCEAN - Stateroom Steward/ess (6860)",
+      "steps": [
+        "Upload CV",
+        "Profile Information",
+        "Additional Questions"
+      ],
+      "cv_upload": {
+        "required": true,
+        "formats": [
+          "DOC",
+          "DOCX",
+          "PDF",
+          "TXT"
+        ],
+        "max_size": "1MB",
+        "note": "Smaller limit than MSC — a 3MB CV will be rejected here. Can also import from LinkedIn, Dropbox, Indeed or OneDrive."
+      },
+      "required_fields": [
+        "First Name",
+        "Last Name",
+        "Email Address",
+        "Country Code",
+        "Phone Number",
+        "Country of residence",
+        "Nationality",
+        "Visible tattoos question (while wearing uniform)",
+        "Consent to use of personal information for recruiting"
+      ],
+      "optional_fields": [
+        "Middle Name",
+        "Source",
+        "Contact me about future opportunities"
+      ],
+      "watch_out": [
+        "Asks whether you have tattoos that would be visible in uniform — answer honestly; it is a screening question, not an automatic rejection.",
+        "CV size limit is 1MB. Kasi's current CV is ~111KB, so it is fine."
+      ]
+    },
+    "_default": {
+      "platform": "unknown",
+      "verified_on": null,
+      "cv_upload": {
+        "required": true,
+        "formats": [
+          "PDF",
+          "DOC",
+          "DOCX"
+        ],
+        "max_size": "unknown"
+      },
+      "required_fields": [
+        "Name",
+        "Email",
+        "Phone",
+        "Nationality",
+        "CV upload"
+      ],
+      "watch_out": [
+        "This employer's form has not been inspected yet — the fields above are the usual minimum, not a verified list."
+      ]
+    }
+  },
+  "_always_have_ready": {
+    "_comment": "Documents Kasi should have scanned and to hand before starting any cruise application.",
+    "items": [
+      "CV as a PDF under 1MB (the smallest limit seen across these boards)",
+      "Passport — number and expiry (his is valid to 2032)",
+      "CDC / Seaman's Book — number and expiry (his is valid to 2034)",
+      "Date of birth and full name exactly as printed in the passport",
+      "Phone number in international format, no spaces",
+      "A recent passport-style photograph",
+      "Reference and employment dates from your current housekeeping role (May 2024 onwards)",
+      "B.Sc. Marine Catering & Hotel Management certificate",
+      "Any STCW basic safety training certificate, if obtained"
+    ]
+  }
+}
