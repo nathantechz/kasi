@@ -30,6 +30,11 @@ import common  # noqa: E402
 ALL_SOURCES = ["workday", "phenom", "radancy", "oraclecloud", "lever",
                "smartrecruiters"]
 
+# Informal channels (Instagram, Telegram). These produce LEADS, not jobs: they
+# are unverified, scored for scam risk, and stored separately. They never enter
+# the curated `jobs` table.
+LEAD_SOURCES = ["instagram", "telegram"]
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
@@ -37,6 +42,8 @@ def main() -> None:
     ap.add_argument("--only", nargs="*", choices=ALL_SOURCES, help="run only these sources")
     ap.add_argument("--no-detail", action="store_true",
                     help="skip per-job detail pages (faster, weaker experience parsing)")
+    ap.add_argument("--no-leads", action="store_true",
+                    help="skip the informal channels (Instagram/Telegram)")
     args = ap.parse_args()
 
     sources = args.only or ALL_SOURCES
@@ -61,6 +68,18 @@ def main() -> None:
             print(f"  ! {name} failed: {type(exc).__name__}: {exc}")
             run_counts[name] = 0
         print()
+
+    # ---- informal channels: leads, kept well away from the verified jobs ---- #
+    leads: list[dict] = []
+    if not args.no_leads:
+        for name in LEAD_SOURCES:
+            print(f"[{name}]  (informal — leads, not verified jobs)")
+            try:
+                mod = importlib.import_module(f"sources.{name}")
+                leads.extend(mod.fetch())
+            except Exception as exc:  # noqa: BLE001
+                print(f"  ! {name} failed: {type(exc).__name__}: {exc}")
+            print()
 
     records = list({r["job_id"]: r for r in all_records}.values())
 
@@ -95,6 +114,12 @@ def main() -> None:
     print(f"  → 6. posted within 30 days    {f['fresh']:5d}")
     print()
     print(f"Curated database    : {out['db']}   ({out['kept']} jobs to apply to)")
+
+    if leads:
+        ls = common.store_leads(leads)
+        print()
+        print(f"Informal leads      : {ls['kept']} kept, {ls['removed']} removed as likely scams")
+        print("                      (unverified — shown separately, never mixed with the jobs above)")
     print("=" * 66)
 
     if out["records"]:

@@ -163,5 +163,14 @@
       "token": "lindblad-expeditions",
       "hint": null
     }
+  ],
+  "instagram_accounts": [
+    "capt.norbert"
+  ],
+  "_instagram_note": "Captured with a browser — see scripts/capture_instagram.md. Meta's alt text is client-side only, so requests cannot read it.",
+  "telegram": [
+    "cruiseshipjobs",
+    "crewjobs",
+    "merchantnavyjobs"
   ]
 }

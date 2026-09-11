@@ -20,3 +20,7 @@ data/logs/
 data/kasi_jobs.db
 data/processed/jobs_master.jsonl
 data/processed/jobs_master.csv
+
+# Kasi's personal documents — CV, degree, offer letters, passport/CDC scans.
+# NEVER commit: the repo is public and these carry his address, DOB and IDs.
+documents/

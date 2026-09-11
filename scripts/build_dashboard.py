@@ -47,6 +47,11 @@ def load() -> tuple[list[dict], dict]:
     meta = dict(run) if run else {}
     meta["rejected"] = [{"gate": r[0], "count": r[1]} for r in rejected]
     meta["have_ready"] = common.always_have_ready()
+    meta["leads"] = [dict(r) for r in conn.execute(
+        "SELECT * FROM leads ORDER BY risk ASC, date_posted DESC")]
+    meta["leads_removed"] = [dict(r) for r in conn.execute(
+        "SELECT snippet, risk, reasons, source FROM leads_removed "
+        "WHERE run_date=(SELECT MAX(run_date) FROM leads_removed) ORDER BY risk DESC")]
     conn.close()
     return jobs, meta
 
@@ -123,6 +128,18 @@ TEMPLATE = """<!doctype html>
   .exportbar p{margin:0 0 10px;font-size:13px;color:var(--muted)}
   .exportbar textarea{width:100%;min-height:120px;background:var(--bg);color:var(--ink);
       border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical}
+  .lead{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--stretch);
+        border-radius:10px;padding:13px 15px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .lead.ok{border-left-color:var(--accent)}
+  .lead p{margin:0 0 8px;font-size:13.5px}
+  .lead .src{color:var(--muted);font-size:12.5px;margin-bottom:6px}
+  .warnbox{background:#fff4f4;border:1px solid #e8cccc;border-radius:10px;padding:13px 15px;margin-bottom:12px}
+  @media (prefers-color-scheme:dark){.warnbox{background:#2a1a1a;border-color:#4a2b2b}}
+  .warnbox h3{margin:0 0 6px;font-size:14px}
+  .warnbox ul{margin:6px 0 0;padding-left:18px;font-size:13px}
+  .sect{margin:26px 0 12px}
+  .sect h2{font-size:17px;margin:0 0 4px;letter-spacing:-.01em}
+  .sect p{margin:0;color:var(--muted);font-size:13px}
   .empty{background:var(--panel);border:1px dashed var(--line);border-radius:12px;padding:36px;text-align:center;color:var(--muted)}
   footer{color:var(--muted);font-size:12.5px;margin-top:28px;line-height:1.7;border-top:1px solid var(--line);padding-top:16px}
   code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:12px}
@@ -170,6 +187,9 @@ TEMPLATE = """<!doctype html>
 </div>
 
 <div id="list"></div>
+
+<div id="leadsWrap"></div>
+
 <footer id="foot"></footer>
 </div>
 
@@ -394,6 +414,64 @@ document.getElementById("foot").innerHTML =
   + (META.rejected||[]).map(r=>`${r.count} failed <code>${esc(r.gate)}</code>`).join(", ")
   + `. "Applied" and "Not interested" are saved in this browser only — use the export box to make them permanent.`
   + (STORAGE_OK ? "" : ` <strong>This browser is blocking site storage, so your ticks will be lost when you close the page — export them before you go.</strong>`);
+
+function renderLeads(){
+  const leads = META.leads || [], removed = META.leads_removed || [];
+  const wrap = document.getElementById("leadsWrap");
+  if (!leads.length && !removed.length) return;
+
+  const safety = `<div class="warnbox">
+    <h3>Before you reply to any of these</h3>
+    <p style="margin:0;font-size:13px">These came from social media, not from a cruise line's own
+      careers site. Nobody has verified them.</p>
+    <ul>
+      <li><strong>Never pay to get a job at sea.</strong> A licensed Indian agent (RPSL)
+          is not allowed to charge you a placement, registration, medical or visa fee.
+          Anyone asking for money is not legitimate — walk away.</li>
+      <li>Ask for the agent's <strong>RPSL number</strong> and check it at dgshipping.gov.in.</li>
+      <li>If the post names a real cruise line, <strong>apply on that line's own site</strong>
+          — the list above — rather than through a middleman.</li>
+      <li>Don't send your passport or CDC before you have had a real interview.</li>
+    </ul></div>`;
+
+  const cards = leads.map(l => {
+    const cls = l.band === "looks_ok" ? "lead ok" : "lead";
+    const flags = (l.flags||"").split(" | ").filter(Boolean);
+    const pos = (l.positives||"").split(" | ").filter(Boolean);
+    return `<div class="${cls}">
+      <div class="src">${esc(l.source)}${l.account?" · @"+esc(l.account):""}
+        ${l.date_posted?" · "+esc(l.date_posted):""}
+        · <strong>${l.band==="looks_ok"?"no scam signals found":"treat with caution"}</strong></div>
+      <p>${esc((l.text||"").slice(0,300))}${(l.text||"").length>300?"…":""}</p>
+      <div class="chips">
+        ${l.rpsl?`<span class="chip v-strong_match">licence ${esc(l.rpsl)}</span>`:""}
+        ${l.employer?`<span class="chip">${esc(l.employer)}</span>`:""}
+        ${l.contact?`<span class="chip">${esc(l.contact)}</span>`:""}
+      </div>
+      ${l.matches_board?`<p style="font-size:13px"><strong>You can skip the middleman.</strong>
+         ${esc(l.matches_board)} is already in the verified list above — apply there instead.</p>`:""}
+      ${flags.length?`<details><summary>What to be careful about (${flags.length})</summary>
+         <ul>${flags.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></details>`:""}
+      ${pos.length?`<details><summary>Reassuring signs (${pos.length})</summary>
+         <ul>${pos.map(f=>`<li>${esc(f)}</li>`).join("")}</ul></details>`:""}
+      ${l.url?`<div class="actions"><a class="ghost" style="text-decoration:none"
+         href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">See the original post</a></div>`:""}
+    </div>`;
+  }).join("");
+
+  const removedNote = removed.length ? `<div class="warnbox">
+      <h3>${removed.length} post${removed.length>1?"s":""} removed as likely scams</h3>
+      <p style="margin:0;font-size:13px">Not shown, so they cannot be clicked by mistake.
+        Listed here only so you know what was taken out.</p>
+      <ul>${removed.map(r=>`<li>${esc(r.snippet.slice(0,110))}…
+          <br><em>${esc((r.reasons||"").split(" | ")[0])}</em></li>`).join("")}</ul></div>` : "";
+
+  wrap.innerHTML = `<div class="sect"><h2>Leads from social media</h2>
+    <p>${leads.length} unverified post${leads.length===1?"":"s"} mentioning housekeeping roles.
+       These are a signal that someone is hiring — not an application you can trust.</p></div>
+    ${safety}${removedNote}${cards}`;
+}
+renderLeads();
 
 document.getElementById("readylist").innerHTML =
   (META.have_ready||[]).map(x=>`<li>${esc(x)}</li>`).join("");

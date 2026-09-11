@@ -888,6 +888,50 @@ def always_have_ready() -> list[str]:
     return application_forms().get("_always_have_ready", {}).get("items", [])
 
 
+def store_leads(leads: list[dict]) -> dict:
+    """Write informal leads to the DB, DROPPING anything scored high_risk.
+
+    High-risk leads are deleted rather than shown greyed-out. A scam that is
+    still on the page is still something Kasi can click. They are recorded in
+    `leads_removed` so the removal is auditable, never silent.
+    """
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM leads")
+    cur.execute("DELETE FROM leads_removed WHERE run_date = ?", (TODAY,))
+
+    kept = removed = 0
+    for l in leads:
+        if l.get("band") == "high_risk":
+            cur.execute("INSERT OR REPLACE INTO leads_removed VALUES (?,?,?,?,?,?)",
+                        (TODAY, l["lead_id"], l["source"], l["text"][:180],
+                         l["risk"], " | ".join(l.get("flags", []))))
+            removed += 1
+            continue
+        # If the lead names a cruise line we already scrape directly, say so —
+        # applying through the employer's own board beats going via an agent.
+        emp = l.get("employer", "")
+        matches = ""
+        if emp:
+            for known in ("MSC Cruises", "Viking", "Norwegian Cruise Line Holdings",
+                          "Virgin Voyages", "Carnival Corporation", "Disney",
+                          "Holland America Group", "Lindblad Expeditions"):
+                if emp.lower().split()[0] in known.lower():
+                    matches = known
+                    break
+        cur.execute("INSERT OR REPLACE INTO leads VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (l["lead_id"], l["source"], l.get("account", ""), l.get("url", ""),
+                     l["text"], emp, matches, l.get("contact", ""), l.get("rpsl", ""),
+                     l["band"], l["risk"], " | ".join(l.get("flags", [])),
+                     " | ".join(l.get("positives", [])),
+                     l.get("date_posted", ""), l.get("captured_on", "")))
+        kept += 1
+
+    conn.commit()
+    conn.close()
+    return {"kept": kept, "removed": removed}
+
+
 # --------------------------------------------------------------------------- #
 # Gate 6 — roles Kasi has said he is not interested in
 # --------------------------------------------------------------------------- #
@@ -1161,6 +1205,35 @@ CREATE TABLE IF NOT EXISTS runs (
     kasi_years     REAL,
     max_age_days   INTEGER,
     source_counts  TEXT
+);
+
+CREATE TABLE IF NOT EXISTS leads (
+    lead_id       TEXT PRIMARY KEY,
+    source        TEXT,
+    account       TEXT,
+    url           TEXT,
+    text          TEXT,
+    employer      TEXT,
+    matches_board TEXT,
+    contact       TEXT,
+    rpsl          TEXT,
+    band          TEXT,
+    risk          INTEGER,
+    flags         TEXT,
+    positives     TEXT,
+    date_posted   TEXT,
+    captured_on   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_leads_band ON leads(band);
+
+CREATE TABLE IF NOT EXISTS leads_removed (
+    run_date TEXT,
+    lead_id  TEXT,
+    source   TEXT,
+    snippet  TEXT,
+    risk     INTEGER,
+    reasons  TEXT,
+    PRIMARY KEY (run_date, lead_id)
 );
 
 CREATE TABLE IF NOT EXISTS rejected (

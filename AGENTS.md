@@ -132,3 +132,34 @@ these forms are JavaScript-rendered. It is verified per employer, not per job.
 Never invent fields: if a form has not been checked, leave the employer out and
 let `_default` apply — it is labelled unverified on the dashboard on purpose.
 Bump `verified_on` whenever you re-check.
+
+## Informal channels — the rules that matter
+`sources/instagram.py` and `sources/telegram.py` produce **leads**, never jobs.
+Leads live in their own `leads` table, render in their own dashboard section,
+and are excluded from the funnel. **Never merge a lead into `jobs`** — the whole
+value of that table is that everything in it came from an employer's own board.
+
+`trust.py` screens every lead. Two invariants:
+
+1. **A fee demand is disqualifying and cannot be offset.** It short-circuits
+   before any trust credit is applied. This was a real exploit: quoting an RPSL
+   number and a real cruise line pulled a fee-charging post back to `caution`.
+   Naming a licence beside a real brand is exactly how these scams look
+   official — so treat trust signals as *never* able to rescue a fee demand.
+2. **`high_risk` leads are deleted, not greyed out.** A scam still on the page
+   is still clickable. They go to `leads_removed` with reasons so the removal is
+   auditable rather than silent.
+
+Do not "improve" the scorer by softening these. If you add signals, add
+assertions to `selftest.py` in the same commit — the fee-offset bug was caught
+only because a test asserted the band directly.
+
+Instagram is snapshot-based on purpose: Meta's alt-text OCR is client-side, so
+`requests` cannot read it. Do not write an adapter that pretends to fetch it
+live. `scripts/capture_instagram.md` documents the browser step.
+
+## Kasi's documents
+`documents/` holds his CV, degree and offer letter and is **git-ignored** — the
+repo is public and those carry his address, DOB and identity numbers. Use them
+to fill an application accurately. Submitting an application, creating an
+account, or entering a password is Kasi's own action, not the agent's.

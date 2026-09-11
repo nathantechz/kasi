@@ -173,6 +173,36 @@ check("excluded(repost with new id)",
       common.is_excluded({"company": "MSC Cruises", "title": "Butler", "job_id": "brand-new"})[0], True)
 common._EXCL_CACHE = _saved
 
+# --- scam screening for informal leads ------------------------------------- #
+import trust as _trust
+
+SCAM = ("URGENT HIRING CRUISE SHIP HOUSEKEEPING ATTENDANT CABIN STEWARD 100% GUARANTEED "
+        "JOINING NO INTERVIEW DIRECT SELECTION ONLY 5 SEATS LEFT HURRY REGISTRATION FEE "
+        "RS 35,000 PAY VIA GPAY SEND PASSPORT AND CDC COPY ON WHATSAPP +91 9876543210")
+LICENSED = ("Hiren International ASST. BEVERAGE OPERATIONS MANAGER EMAIL YOUR CV ON: "
+            "HIRENRCG@HIRENINTERNATIONAL.COM RPSL MUM-219 valid till 20-07-2031")
+OFFICIAL = "MSC Cruises is hiring Cabin Stewards. Apply at careers.msccruises.com. No fee is charged."
+
+check("scam is high_risk", _trust.assess_trust(SCAM)["band"], "high_risk")
+check("licensed agent is not high_risk",
+      _trust.assess_trust(LICENSED)["band"] != "high_risk", True)
+check("RPSL number extracted", _trust.assess_trust(LICENSED)["rpsl"], "RPSL-MUM-219")
+check("official employer post is clean", _trust.assess_trust(OFFICIAL)["band"], "looks_ok")
+
+# A fee demand alone must be enough to reject, however friendly the rest reads.
+check("fee demand alone rejects",
+      _trust.assess_trust("Join MSC Cruises as Cabin Steward. RPSL-MUM-100. "
+                          "Small registration fee of Rs 5000 applies.")["band"], "high_risk")
+# ...and the reason must actually mention the money.
+check("fee rejection explains itself",
+      any("money" in f for f in _trust.assess_trust(SCAM)["flags"]), True)
+
+# An ordinary local advert with only a phone number is 'caution', not 'high_risk' —
+# these two signals are one thing and must not be double-counted.
+check("bare-mobile advert is caution, not high_risk",
+      _trust.assess_trust("COASTAL FLAMES WE ARE HIRING WAITER. "
+                          "Send your resume to +91 7887581812")["band"], "caution")
+
 # --- report --------------------------------------------------------------- #
 print(f"Kasi's computed housekeeping experience: {have} years")
 if FAILS:

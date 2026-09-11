@@ -149,6 +149,65 @@ gracefully and yields zero rows rather than breaking the run. **Probe a host
 before adding it** — a config full of hopeful guesses makes runs slow and the
 per-source counts meaningless.
 
+## Beyond the job boards — social media leads
+
+A lot of Indian cruise hiring never reaches an ATS. It is advertised on
+Instagram by agents and crewing companies. Two facts make that usable:
+
+1. **The vacancies are in the image, not the caption.** A typical post's caption
+   is "Vacancies for Indonesians"; the positions are printed on the graphic.
+2. **Meta OCRs the graphic for us.** Each post image carries an accessibility
+   `alt` attribute with Meta's own transcription, e.g. *"May be a graphic of
+   text that says \"VIKING WE'RE HIRING! … -1ST HOUSEKEEPER -ASST CHIEF
+   HOUSEKEEPER -STATEROOM STEWARD\""*. No OCR or vision model needed.
+
+The catch: that alt text is injected client-side, so `requests` cannot see it —
+a plain fetch returns a 624 KB JavaScript shell with no caption, no
+`og:description` and no alt. Capturing it needs a browser, so Instagram is
+**snapshot-based**: see `scripts/capture_instagram.md` (a one-minute console
+paste). `sources/telegram.py` needs no browser and runs automatically, though
+its yield for cruise housekeeping is thin — those channels are mostly cargo and
+merchant-navy.
+
+### These are leads, not jobs
+
+Anything from an informal channel goes into a **separate `leads` table** and a
+separate dashboard section. It never enters the curated `jobs` table, is never
+counted in the funnel, and is never presented as something to apply to.
+
+## Removing scams
+
+Cruise work is one of India's most scammed job markets, so every lead is scored
+by `scripts/trust.py` before it is shown.
+
+The hard rule comes from the law: under the Merchant Shipping (Recruitment and
+Placement of Seafarers) Rules, a licensed **RPSL** agent may not charge a
+seafarer a placement fee. So **any request for money is disqualifying** — it is
+either an unlicensed operator or a fraud.
+
+| Band | What happens |
+|---|---|
+| `high_risk` | **Deleted.** Never rendered, so it cannot be clicked by mistake. Logged in `leads_removed` with reasons, so removal is auditable. |
+| `caution` | Shown, badged, with each specific concern listed |
+| `looks_ok` | Shown — still unverified, still not a guarantee |
+
+Signals it weighs:
+
+- **Disqualifying** — registration/placement/medical/visa fees, "pay ₹…", UPI/GPay/Western Union
+- **Risk** — guaranteed-job claims, "no interview", manufactured urgency, WhatsApp-only contact, free email addresses, demands for passport/CDC before an interview
+- **Trust** — an **RPSL licence number** (`RPSL-MUM-219`, checkable at dgshipping.gov.in), a company email domain, a named cruise line, an explicit no-fee pledge
+
+A fee demand **short-circuits everything**. That was a real bug caught by
+`selftest.py`: a post quoting a plausible RPSL number and naming a real cruise
+line earned enough trust credit to pull a fee demand back down to `caution`.
+Since quoting a fake licence beside a real brand is exactly how these scams
+launder themselves, a fee demand now rejects outright and says so.
+
+**Where a lead names a cruise line the pipeline already scrapes, the dashboard
+says so and points Kasi at the official board** — the right use of a social post
+is to learn that a line is hiring, then apply directly rather than through a
+middleman.
+
 ## Layout
 
 ```
